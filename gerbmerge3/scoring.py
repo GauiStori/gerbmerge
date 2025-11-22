@@ -3,15 +3,15 @@
 --------------------------------------------------------------------
 
 This program is licensed under the GNU General Public License (GPL)
-Version 3.    See http://www.fsf.org for details of the license.
+Version 3.  See http://www.fsf.org for details of the license.
 
 Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
 """
 
-from . import config
-from . import util
-from . import makestroke
+import config
+import util
+import makestroke
 
 # Add a horizontal line if its within the extents of the panel. Also, trim
 # start and/or end points to the extents.

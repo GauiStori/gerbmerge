@@ -11,7 +11,7 @@ Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
 """
 
-from . import config
+import config
 
 
 def in2gerb(value):

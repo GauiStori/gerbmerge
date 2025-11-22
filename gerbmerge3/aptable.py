@@ -5,7 +5,7 @@ Manage apertures, read aperture table, etc.
 --------------------------------------------------------------------
 
 This program is licensed under the GNU General Public License (GPL)
-Version 3.    See http://www.fsf.org for details of the license.
+Version 3.  See http://www.fsf.org for details of the license.
 
 Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
@@ -15,9 +15,9 @@ import sys
 import re
 import string
 
-from . import config
-from . import amacro
-from . import util
+import config
+import amacro
+import util
 
 # Recognized apertures and re pattern that matches its definition Thermals and
 # annuli are generated using macros (see the eagle.def file) but only on inner
@@ -26,18 +26,18 @@ from . import util
 # GerbMerge doesn't handle these yet...only fixed macros (no parameters) are
 # currently supported.
 Apertures = (
-     ('Rectangle', re.compile(r'^%AD(D\d+)R,([^X]+)X([^*]+)\*%$'), '%%AD%sR,%.5fX%.5f*%%\n'),
-     ('Circle',        re.compile(r'^%AD(D\d+)C,([^*]+)\*%$'),                 '%%AD%sC,%.5f*%%\n'),
-     ('Oval',            re.compile(r'^%AD(D\d+)O,([^X]+)X([^*]+)\*%$'), '%%AD%sO,%.5fX%.5f*%%\n'),
-     ('Octagon',     re.compile(r'^%AD(D\d+)OC8,([^*]+)\*%$'),             '%%AD%sOC8,%.5f*%%\n'),         # Specific to Eagle
-     ('Macro',         re.compile(r'^%AD(D\d+)([^*]+)\*%$'),                     '%%AD%s%s*%%\n')
-    )
+   ('Rectangle', re.compile(r'^%AD(D\d+)R,([^X]+)X([^*]+)\*%$'), '%%AD%sR,%.5fX%.5f*%%\n'),
+   ('Circle',    re.compile(r'^%AD(D\d+)C,([^*]+)\*%$'),         '%%AD%sC,%.5f*%%\n'),
+   ('Oval',      re.compile(r'^%AD(D\d+)O,([^X]+)X([^*]+)\*%$'), '%%AD%sO,%.5fX%.5f*%%\n'),
+   ('Octagon',   re.compile(r'^%AD(D\d+)OC8,([^*]+)\*%$'),       '%%AD%sOC8,%.5f*%%\n'),     # Specific to Eagle
+   ('Macro',     re.compile(r'^%AD(D\d+)([^*]+)\*%$'),           '%%AD%s%s*%%\n')
+  )
 
 # This loop defines names in this module like 'Rectangle',
 # which are element 0 of the Apertures list above. So code
 # will be like:
-#             import aptable
-#             A = aptable.Aperture(aptable.Rectangle, ......)
+#       import aptable
+#       A = aptable.Aperture(aptable.Rectangle, ......)
 
 for ap in Apertures:
     globals()[ap[0]] = ap
@@ -47,8 +47,8 @@ class Aperture:
         assert aptype in Apertures
         self.apname, self.pat, self.format = aptype
         self.code = code
-        self.dimx = dimx            # Macro name for Macro apertures
-        self.dimy = dimy            # None for Macro apertures
+        self.dimx = dimx      # Macro name for Macro apertures
+        self.dimy = dimy      # None for Macro apertures
 
         if self.apname in ('Circle', 'Octagon', 'Macro'):
             assert (dimy is None)
@@ -187,18 +187,18 @@ def parseAperture(s, knownMacroNames):
 # aperture code string (e.g., "D11") and the value is the
 # Aperture object that represents it. For example:
 #
-#        %ADD12R,0.0630X0.0630*%
+#    %ADD12R,0.0630X0.0630*%
 #
-# from a Gerber file would result in the dictionary entry:
+# Gerber file would result in the dictionary entry:
 #
-#        "D12": Aperture(ap, 'D10', 0.063, 0.063)
+#    "D12": Aperture(ap, 'D10', 0.063, 0.063)
 #
 # The input fileList is a list of pathnames which will be read to construct the
-# aperture table for a job.    All the files in the given list will be so
+# aperture table for a job.  All the files in the given list will be so
 # examined, and a global aperture table will be constructed as a dictionary.
 # Same goes for the global aperture macro table.
 
-tool_pat    = re.compile(r'^(?:G54)?D\d+\*$')
+tool_pat  = re.compile(r'^(?:G54)?D\d+\*$')
 
 def constructApertureTable(fileList):
     # First we construct a dictionary where each key is the
@@ -218,7 +218,7 @@ def constructApertureTable(fileList):
 
         knownMacroNames = {}
 
-        fid = file(fname,'rt')
+        fid = open(fname,'rt')
         for line in fid:
             # Get rid of CR
             line = line.replace('\x0D', '')

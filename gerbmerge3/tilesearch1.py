@@ -12,10 +12,10 @@ http://ruggedcircuits.com/gerbmerge
 import sys
 import time
 
-from . import config
-from . import tiling
+import config
+import tiling
 
-from . import gerbmerge
+import gerbmerge
 
 _StartTime = 0.0           # Start time of tiling
 _CkpointTime = 0.0         # Next time to print stats

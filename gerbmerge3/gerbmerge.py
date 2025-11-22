@@ -17,7 +17,7 @@ This program places all jobs into a single job.
 --------------------------------------------------------------------
 
 This program is licensed under the GNU General Public License (GPL)
-Version 3. See http://www.fsf.org for details of the license.
+Version 3.  See http://www.fsf.org for details of the license.
 
 Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
@@ -31,23 +31,23 @@ import os
 import getopt
 import re
 
-from . import aptable
-from . import jobs
-from . import config
-from . import parselayout
-from . import fabdrawing
-from . import strokes
-from . import tiling
-from . import tilesearch1
-from . import tilesearch2
-from . import placement
-from . import schwartz
-from . import util
-from . import scoring
-from . import drillcluster
+import aptable
+import jobs
+import config
+import parselayout
+import fabdrawing
+import strokes
+import tiling
+import tilesearch1
+import tilesearch2
+import placement
+import schwartz
+import util
+import scoring
+import drillcluster
 
 # make version info available when running as script
-from .__version_info__ import __version__
+from __version_info__ import __version__
 
 RANDOM_SEARCH = 1
 EXHAUSTIVE_SEARCH = 2
@@ -499,7 +499,7 @@ def merge(opts, args, gui = None):
             fullname = 'merged.%s.ger' % lname
         OutputFiles.append(fullname)
         #print 'Writing %s ...' % fullname
-        fid = file(fullname, 'wt')
+        fid = open(fullname, 'wt')
         writeGerberHeader(fid)
 
         # Determine which apertures and macros are truly needed
@@ -590,7 +590,7 @@ def merge(opts, args, gui = None):
     if fullname and fullname.lower() != "none":
         OutputFiles.append(fullname)
         #print 'Writing %s ...' % fullname
-        fid = file(fullname, 'wt')
+        fid = open(fullname, 'wt')
         writeGerberHeader(fid)
 
         # Write width-1 aperture to file
@@ -619,7 +619,7 @@ def merge(opts, args, gui = None):
     if fullname and fullname.lower() != "none":
         OutputFiles.append(fullname)
         #print 'Writing %s ...' % fullname
-        fid = file(fullname, 'wt')
+        fid = open(fullname, 'wt')
         writeGerberHeader(fid)
 
         # Write width-1 aperture to file
@@ -677,7 +677,7 @@ def merge(opts, args, gui = None):
 
         OutputFiles.append(fullname)
         #print 'Writing %s ...' % fullname
-        fid = file(fullname, 'wt')
+        fid = open(fullname, 'wt')
         writeGerberHeader(fid)
         writeApertures(fid, {drawing_code1: None})
         fid.write('%s*\n' % drawing_code1)        # Choose drawing aperture
@@ -694,7 +694,7 @@ def merge(opts, args, gui = None):
         fullname = 'merged.drills.xln'
     OutputFiles.append(fullname)
     #print 'Writing %s ...' % fullname
-    fid = file(fullname, 'wt')
+    fid = open(fullname, 'wt')
 
     writeExcellonHeader(fid)
 
@@ -746,7 +746,7 @@ def merge(opts, args, gui = None):
         fullname = 'merged.toollist.drl'
     OutputFiles.append(fullname)
     #print 'Writing %s ...' % fullname
-    fid = file(fullname, 'wt')
+    fid = open(fullname, 'wt')
 
     print('-'*50)
     # add metric support (1/1000 mm vs. 1/100,000 inch)

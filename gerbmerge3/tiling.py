@@ -21,8 +21,8 @@ http://ruggedcircuits.com/gerbmerge
 import sys
 import math
 
-from . import config
-from . import jobs
+import config
+import jobs
 
 # Helper functions to determine if points are right-of, left-of, above, and
 # below each other. These definitions assume that points are on a line that

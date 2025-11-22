@@ -19,8 +19,8 @@ import configparser
 import re
 import string
 
-from . import jobs
-from . import aptable
+import jobs
+import aptable
 
 # Configuration dictionary. Specify floats as strings. Ints can be specified
 # as ints or strings.
@@ -152,9 +152,9 @@ def parseToolList(fname):
     TL = {}
 
     try:
-        fid = file(fname, 'rt')
+        fid = open(fname, 'rt')
     except Exception as detail:
-        raise RuntimeError("Unable to open tool list file '%s':\n    %s" % (fname, str(detail)))
+        raise RuntimeError("Unable to open tool list file '%s':\n  %s" % (fname, str(detail)))
 
     pat_in    = re.compile(r'\s*(T\d+)\s+([0-9.]+)\s*in\s*')
     pat_mm    = re.compile(r'\s*(T\d+)\s+([0-9.]+)\s*mm\s*')
@@ -203,7 +203,7 @@ def parseToolList(fname):
 # everything needed to:
 #
 #   * parse global options and store them in the Config dictionary
-#      as natural types (i.e., ints, floats, lists)
+#     as natural types (i.e., ints, floats, lists)
 #
 #   * Read Gerber/Excellon data and populate the Jobs dictionary
 #
@@ -215,7 +215,8 @@ def parseConfigFile(fname, Config=Config, Jobs=Jobs):
     global DefaultToolList
 
     CP = configparser.ConfigParser()
-    CP.readfp(file(fname.rstrip(),'rt'))
+    with open(fname.strip(), 'r') as f:
+        CP.read_file(f)
 
     # First parse global options
     if CP.has_section('Options'):

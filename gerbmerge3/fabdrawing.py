@@ -4,7 +4,7 @@
 --------------------------------------------------------------------
 
 This program is licensed under the GNU General Public License (GPL)
-Version 3.See http://www.fsf.org for details of the license.
+Version 3.  See http://www.fsf.org for details of the license.
 
 Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
@@ -12,9 +12,9 @@ http://ruggedcircuits.com/gerbmerge
 
 import string
 
-from . import config
-from . import makestroke
-from . import util
+import config
+import makestroke
+import util
 
 def writeDrillHits(fid, Place, Tools):
     toolNumber = -1
@@ -157,7 +157,7 @@ def writeUserText(fid, X, Y):
     if not fname: return
 
     try:
-        tfile = file(fname, 'rt')
+        tfile = open(fname, 'rt')
     except Exception as detail:
         raise RuntimeError("Could not open fabrication drawing text file '%s':\n%s" % (fname,str(detail)))
 

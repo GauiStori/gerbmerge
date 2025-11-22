@@ -22,12 +22,12 @@ import builtins
 import copy
 import types
 
-from . import aptable
-from . import config
-from . import makestroke
-from . import amacro
-from . import geometry
-from . import util
+import aptable
+import config
+import makestroke
+import amacro
+import geometry
+import util
 
 # Parsing Gerber/Excellon files is currently very brittle. A more robust
 # RS274X/Excellon parser would be a good idea and allow this program to work
@@ -45,72 +45,72 @@ from . import util
 # Check fabdrawing.py to see if writeDrillHits is scaling properly (the only place it is used)
 
 # Patterns for Gerber RS274X file interpretation
-apdef_pat = re.compile(r'^%AD(D\d+)([^*$]+)\*%$')         # Aperture definition
-apmdef_pat = re.compile(r'^%AM([^*$]+)\*$')                     # Aperture macro definition
-comment_pat = re.compile(r'G0?4[^*]*\*')                            # Comment (GerbTool comment omits the 0)
-tool_pat    = re.compile(r'(D\d+)\*')                                     # Aperture selection
-gcode_pat = re.compile(r'G(\d{1,2})\*?')                            # G-codes
-drawXY_pat = re.compile(r'X([+-]?\d+)Y([+-]?\d+)D0?([123])\*')    # Drawing command
-drawX_pat    = re.compile(r'X([+-]?\d+)D0?([123])\*')                # Drawing command, Y is implied
-drawY_pat    = re.compile(r'Y([+-]?\d+)D0?([123])\*')                # Drawing command, X is implied
-format_pat = re.compile(r'%FS(L|T)?(A|I)(N\d+)?(X\d\d)(Y\d\d)\*%')    # Format statement
-layerpol_pat = re.compile(r'^%LP[CD]\*%')                         # Layer polarity (D=dark, C=clear)
+apdef_pat = re.compile(r'^%AD(D\d+)([^*$]+)\*%$')     # Aperture definition
+apmdef_pat = re.compile(r'^%AM([^*$]+)\*$')           # Aperture macro definition
+comment_pat = re.compile(r'G0?4[^*]*\*')              # Comment (GerbTool comment omits the 0)
+tool_pat  = re.compile(r'(D\d+)\*')                   # Aperture selection
+gcode_pat = re.compile(r'G(\d{1,2})\*?')              # G-codes
+drawXY_pat = re.compile(r'X([+-]?\d+)Y([+-]?\d+)D0?([123])\*')  # Drawing command
+drawX_pat  = re.compile(r'X([+-]?\d+)D0?([123])\*')        # Drawing command, Y is implied
+drawY_pat  = re.compile(r'Y([+-]?\d+)D0?([123])\*')        # Drawing command, X is implied
+format_pat = re.compile(r'%FS(L|T)?(A|I)(N\d+)?(X\d\d)(Y\d\d)\*%')  # Format statement
+layerpol_pat = re.compile(r'^%LP[CD]\*%')             # Layer polarity (D=dark, C=clear)
 
 # Circular interpolation drawing commands (from Protel)
 cdrawXY_pat = re.compile(r'X([+-]?\d+)Y([+-]?\d+)I([+-]?\d+)J([+-]?\d+)D0?([123])\*')
-cdrawX_pat    = re.compile(r'X([+-]?\d+)I([+-]?\d+)J([+-]?\d+)D0?([123])\*')    # Y is implied
-cdrawY_pat    = re.compile(r'Y([+-]?\d+)I([+-]?\d+)J([+-]?\d+)D0?([123])\*')    # X is implied
+cdrawX_pat  = re.compile(r'X([+-]?\d+)I([+-]?\d+)J([+-]?\d+)D0?([123])\*')  # Y is implied
+cdrawY_pat  = re.compile(r'Y([+-]?\d+)I([+-]?\d+)J([+-]?\d+)D0?([123])\*')  # X is implied
 
 IgnoreList = ( \
-    # These are for Eagle, and RS274X files in general
-    re.compile(r'^%OFA0B0\*%$'),
-    re.compile(r'^%IPPOS\*%'),
-    re.compile(r'^%AMOC8\*$'),                                                 # Eagle's octagon defined by macro with a $1 parameter
-    re.compile(r'^5,1,8,0,0,1\.08239X\$1,22\.5\*$'),     # Eagle's octagon, 22.5 degree rotation
-    re.compile(r'^5,1,8,0,0,1\.08239X\$1,0\.0\*$'),        # Eagle's octagon, 0.0 degree rotation
-    re.compile(r'^\*?%$'),
-    re.compile(r'^M0?2\*$'),
+  # These are for Eagle, and RS274X files in general
+  re.compile(r'^%OFA0B0\*%$'),
+  re.compile(r'^%IPPOS\*%'),
+  re.compile(r'^%AMOC8\*$'),                         # Eagle's octagon defined by macro with a $1 parameter
+  re.compile(r'^5,1,8,0,0,1\.08239X\$1,22\.5\*$'),   # Eagle's octagon, 22.5 degree rotation
+  re.compile(r'^5,1,8,0,0,1\.08239X\$1,0\.0\*$'),    # Eagle's octagon, 0.0 degree rotation
+  re.compile(r'^\*?%$'),
+  re.compile(r'^M0?2\*$'),
 
-    # new Gerber Attributes
-    re.compile(r'^%TF.*\*%'),
-    re.compile(r'^%TA.*\*%'),
-    re.compile(r'^%TD.*\*%'),
-
-    # These additional ones are for Orcad Layout, PCB, Protel, etc.
-    re.compile(r'\*'),                        # Empty statement
-    re.compile(r'^%IN.*\*%'),
-    re.compile(r'^%ICAS\*%'),            # Not in RS274X spec.
-    re.compile(r'^%MOIN\*%'),
-    re.compile(r'^%ASAXBY\*%'),
-    re.compile(r'^%AD\*%'),                # GerbTool empty aperture definition
-    re.compile(r'^%LN.*\*%')             # Layer name
-    )
+  # new Gerber Attributes
+  re.compile(r'^%TF.*\*%'),
+  re.compile(r'^%TA.*\*%'),
+  re.compile(r'^%TD.*\*%'),
+  
+  # These additional ones are for Orcad Layout, PCB, Protel, etc.
+  re.compile(r'\*'),            # Empty statement
+  re.compile(r'^%IN.*\*%'),
+  re.compile(r'^%ICAS\*%'),      # Not in RS274X spec.
+  re.compile(r'^%MOIN\*%'),
+  re.compile(r'^%ASAXBY\*%'),
+  re.compile(r'^%AD\*%'),        # GerbTool empty aperture definition
+  re.compile(r'^%LN.*\*%')       # Layer name
+  )
 
 # Patterns for Excellon interpretation
-xtool_pat = re.compile(r'^(T\d+)$')                     # Tool selection
-xydraw_pat = re.compile(r'^X([+-]?\d+)Y([+-]?\d+)$')        # Plunge command
-xdraw_pat = re.compile(r'^X([+-]?\d+)$')        # Plunge command, repeat last Y value
-ydraw_pat = re.compile(r'^Y([+-]?\d+)$')        # Plunge command, repeat last X value
+xtool_pat = re.compile(r'^(T\d+)$')           # Tool selection
+xydraw_pat = re.compile(r'^X([+-]?\d+)Y([+-]?\d+)$')    # Plunge command
+xdraw_pat = re.compile(r'^X([+-]?\d+)$')    # Plunge command, repeat last Y value
+ydraw_pat = re.compile(r'^Y([+-]?\d+)$')    # Plunge command, repeat last X value
 xtdef_pat = re.compile(r'^(T\d+)(?:F\d+)?(?:S\d+)?C([0-9.]+)$') # Tool+diameter definition with optional
                                                                 # feed/speed (for Protel)
 xtdef2_pat = re.compile(r'^(T\d+)C([0-9.]+)(?:F\d+)?(?:S\d+)?$') # Tool+diameter definition with optional
                                                                 # feed/speed at the end (for OrCAD)
-xzsup_pat = re.compile(r'^INCH(,([LT])Z)?$') # Leading/trailing zeros INCLUDED
+xzsup_pat = re.compile(r'^INCH(,([LT])Z)?$')      # Leading/trailing zeros INCLUDED
 
 XIgnoreList = ( \
-    re.compile(r'^%$'),
-    re.compile(r'^M30$'), # End of job
-    re.compile(r'^M48$'), # Program header to first %
-    re.compile(r'^M72$'), # Inches
-    re.compile(r'^FMAT,2$'),# KiCad work-around
-    re.compile(r'^G05$'), # Drill Mode
-    re.compile(r'^G90$')  # Absolute Mode
-    )
+  re.compile(r'^%$'),
+  re.compile(r'^M30$'),   # End of job
+  re.compile(r'^M48$'),   # Program header to first %
+  re.compile(r'^M72$'),   # Inches
+  re.compile(r'^FMAT,2$'),# KiCad work-around
+  re.compile(r'^G05$'),   # Drill Mode
+  re.compile(r'^G90$')    # Absolute Mode
+  )
 
 # A Job is a single input board. It is expected to have:
-# - a board outline file in RS274X format
-#        - several (at least one) Gerber files in RS274X format
-#        - a drill file in Excellon format
+#    - a board outline file in RS274X format
+#    - several (at least one) Gerber files in RS274X format
+#    - a drill file in Excellon format
 #
 # The board outline and Excellon filenames must be given separately.
 # The board outline file determines the extents of the job.
@@ -144,17 +144,17 @@ class Job:
         self.apmxlat = {}
 
         # Commands are one of:
-        # A. strings for:
-        #   - aperture changes like "D12"
-        #   - G-code commands like "G36"
-        #   - RS-274X commands like "%LPD*%" that begin with '%'
+        #     A. strings for:
+        #           - aperture changes like "D12"
+        #           - G-code commands like "G36"
+        #           - RS-274X commands like "%LPD*%" that begin with '%'
         #     B. (X,Y,D) triples comprising X,Y integers in the range 0 through 999999
         #        and draw commands that are either D01, D02, or D03. The character
-        #         D in the triple above is the integer 1, 2, or 3.
+        #        D in the triple above is the integer 1, 2, or 3.
         #     C. (X,Y,I,J,D,s) 6-tuples comprising X,Y,I,J integers in the range 0 through 999999
-        #         and D as with (X,Y,D) triples. The 's' integer is non-zero to indicate that
-        #         the (I,J) tuple is a SIGNED offset (for multi-quadrant circular interpolation)
-        #         else the tuple is unsigned.
+        #        and D as with (X,Y,D) triples. The 's' integer is non-zero to indicate that
+        #        the (I,J) tuple is a SIGNED offset (for multi-quadrant circular interpolation)
+        #        else the tuple is unsigned.
         #
         # This variable is, as for apxlat, a dictionary keyed by layer name.
         self.commands = {}
@@ -279,7 +279,7 @@ class Job:
 
         #print 'Reading data from %s ...' % fullname
 
-        fid = file(fullname, 'rt')
+        fid = open(fullname, 'rt')
         currtool = None
 
         self.apxlat[layername] = {}
@@ -325,7 +325,7 @@ class Job:
 
         for line in fid:
             # Get rid of CR characters (0x0D) and leading/trailing blanks
-            line = string.replace(line, '\x0D', '').strip()
+            line = line.replace('\x0D', '').strip()
 
             # Old location of format_pat search. Now moved down into the sub-line parse loop below.
 
@@ -625,7 +625,7 @@ class Job:
     def parseExcellon(self, fullname):
         #print 'Reading data from %s ...' % fullname
 
-        fid = file(fullname, 'rt')
+        fid = open(fullname, 'rt')
         currtool = None
         suppress_leading = True         # Suppress leading zeros by default, equivalent to 'INCH,TZ'
 
@@ -657,7 +657,7 @@ class Job:
 
         for line in fid:
             # Get rid of CR characters
-            line = string.replace(line, '\x0D', '')
+            line = line.replace('\x0D', '')
 
 # add support for DipTrace
             if line[:6]=='METRIC':

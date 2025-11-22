@@ -3,7 +3,7 @@
 --------------------------------------------------------------------
 
 This program is licensed under the GNU General Public License (GPL)
-Version 3. See http://www.fsf.org for details of the license.
+Version 3.  See http://www.fsf.org for details of the license.
 
 Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
@@ -11,7 +11,7 @@ http://ruggedcircuits.com/gerbmerge
 
 import math
 
-from . import strokes
+import strokes
 
 # Define percentage of cell height and width to determine
 # intercharacter spacing
@@ -27,9 +27,9 @@ ArrowStemLength = 1250 # How long the arrow stem extends from center point
 #################################################################
 
 # Arrow directions
-FacingLeft=0  # 0 degrees
-FacingDown=1  # 90 degrees counterclockwise
-FacingRight=2 # 180 degrees
+FacingLeft=0    # 0 degrees
+FacingDown=1    # 90 degrees counterclockwise
+FacingRight=2   # 180 degrees
 FacingUp=3    # 270 degrees
 
 SpacingDX = 10*int(round(strokes.MaxWidth*SpacingX))

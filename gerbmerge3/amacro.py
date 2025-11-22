@@ -7,7 +7,7 @@ are supported.
 --------------------------------------------------------------------
 
 This program is licensed under the GNU General Public License (GPL)
-Version 3. See http://www.fsf.org for details of the license.
+Version 3.  See http://www.fsf.org for details of the license.
 
 Rugged Circuits LLC
 http://ruggedcircuits.com/gerbmerge
@@ -18,7 +18,7 @@ import re
 import string
 import copy
 
-from . import config
+import config
 
 _macro_pat = re.compile(r'^%AM([^*]+)\*$')
 
@@ -325,23 +325,22 @@ if __name__=="__main__":
     MR = M.rotated()
 
     # Generate the Gerber so we can view it
-    fid = file('amacro.ger', 'wt')
-    print("""G75*
+    with open('amacro.ger', 'w', encoding='ascii') as fid:
+        fid.write("""G75*
 G70*
 %OFA0B0*%
 %FSLAX24Y24*%
 %IPPOS*%
-%LPD*%""", file=fid)
+%LPD*%""")
     M.writeDef(fid)
     MR.writeDef(fid)
-    print("""%ADD10TEST*%
+    fid.write("""%ADD10TEST*%
 %ADD11TESTR*%
 D10*
 X010000Y010000D03*
 D11*
 X015000Y010000D03*
-M02*""", file=fid)
-    fid.close()
+M02*""")
 
     print(M)
     print(MR)

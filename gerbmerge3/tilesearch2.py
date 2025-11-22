@@ -13,11 +13,11 @@ import sys
 import time
 import random
 
-from . import config
-from . import tiling
-from . import tilesearch1
+import config
+import tiling
+import tilesearch1
 
-from . import gerbmerge
+import gerbmerge
 
 _StartTime = 0.0           # Start time of tiling
 _CkpointTime = 0.0         # Next time to print stats
